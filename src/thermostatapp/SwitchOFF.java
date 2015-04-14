@@ -26,20 +26,27 @@ import static thermostatapp.Thermostat.ON;
 public class SwitchOFF implements PinListener {
 
     private GPIOPin iSwitchOFF;
+    private boolean iTerminateApp = false;
 
-    public SwitchOFF(int aPort, int aPin) throws IOException {
+    public SwitchOFF(int aPort, int aPin) {
         try {
             GPIOPinConfig pinConfig = new GPIOPinConfig(aPort, aPin, GPIOPinConfig.DIR_INPUT_ONLY, DeviceConfig.DEFAULT, GPIOPinConfig.TRIGGER_RISING_EDGE, false);
             iSwitchOFF = DeviceManager.open(pinConfig);
-            Thread.sleep(100);
+            //Thread.sleep(100);
             iSwitchOFF.setInputListener(this);
-        } catch (InterruptedException ex) {
+        //} catch (InterruptedException ex) {
+        //    ex.printStackTrace();
+        } catch (IOException ex) {
             ex.printStackTrace();
         }
     }
 
     public GPIOPin getPin() {
         return iSwitchOFF;
+    }
+    
+    public boolean terminateApp(){
+        return iTerminateApp;
     }
 
     /*    @Override
@@ -59,6 +66,7 @@ public class SwitchOFF implements PinListener {
     @Override
     public void valueChanged(final PinEvent event) {
         if (!bouncing) {
+            System.out.println("Switching off push detected!");
             bouncing = true;
             new Thread(new Runnable() {
                 @Override
@@ -68,10 +76,13 @@ public class SwitchOFF implements PinListener {
                         if (event.getValue() == ON) {
                             try {
                                 //turn off the PI
-                                System.out.println("-------->>switchOFF detected");
-                                iSwitchOFF.close();
-                                Thread.sleep(100);
+                                iTerminateApp = true;
+                                System.out.println("-------->>iTerminateApp = true");
+                                //iSwitchOFF.close();
+                                Thread.sleep(500);
+                                /*
                                 final Process p = Runtime.getRuntime().exec("sudo shutdown -h now");
+                                
                                 //Thread.sleep(300);
                                 BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
                                 String line = null;
@@ -83,7 +94,7 @@ public class SwitchOFF implements PinListener {
                                     e.printStackTrace();
                                 }
                             } catch (IOException ex) {
-                                ex.printStackTrace();
+                                ex.printStackTrace();*/
                             } catch (InterruptedException ex) {
                                 ex.printStackTrace();
                             }
@@ -99,9 +110,13 @@ public class SwitchOFF implements PinListener {
         bouncing = false;
     }
 
-    public void close() throws IOException {
+    public void close() {
         if (iSwitchOFF != null) {
-            iSwitchOFF.close();
+            try {
+                iSwitchOFF.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 }

@@ -32,18 +32,22 @@ public class Thermostat implements PinListener {
     public static boolean ON = true;
     public static boolean OFF = false;
 
-    public Thermostat(int aModeSwitchPortID, int aModeSwitchPinID, int aManualThermostatPortID, int aManualThermostatPinID, int aStatusLEDPinNumber, int aGreenLEDPinNumber, int aYellowLEDPinNumber, int aRedLEDPinNumber, int aHeaterRELAYPinNumber) throws IOException {
-        iStatusLED = new Led(aStatusLEDPinNumber);
-        iHeaterRelay = new Relay(aHeaterRELAYPinNumber);
-        iGreenLED = new Led(aGreenLEDPinNumber);
-        iYellowLED = new Led(aYellowLEDPinNumber);
-        iRedLED = new Led(aRedLEDPinNumber);
-        iModeSwitch = new Switch(aModeSwitchPortID, aModeSwitchPinID);
-        iModeSwitch.setInputListener(this);
-        iController = new Controller(iStatusLED, iGreenLED, iYellowLED, iRedLED, iHeaterRelay);
-        iManualTherostat = new Switch(aManualThermostatPortID, aManualThermostatPinID);
-        iManualTherostat.getPin().setTrigger(GPIOPinConfig.TRIGGER_BOTH_EDGES);
-        iManualTherostat.setInputListener(this);
+    public Thermostat(int aModeSwitchPortID, int aModeSwitchPinID, int aManualThermostatPortID, int aManualThermostatPinID, int aStatusLEDPinNumber, int aGreenLEDPinNumber, int aYellowLEDPinNumber, int aRedLEDPinNumber, int aHeaterRELAYPinNumber) {
+        try {
+            iStatusLED = new Led(aStatusLEDPinNumber);
+            iGreenLED = new Led(aGreenLEDPinNumber);
+            iYellowLED = new Led(aYellowLEDPinNumber);
+            iRedLED = new Led(aRedLEDPinNumber);
+            iHeaterRelay = new Relay(aHeaterRELAYPinNumber);
+            iModeSwitch = new Switch(aModeSwitchPortID, aModeSwitchPinID);
+            iModeSwitch.setInputListener(this);
+            iController = new Controller(iStatusLED, iGreenLED, iYellowLED, iRedLED, iHeaterRelay);
+            iManualTherostat = new Switch(aManualThermostatPortID, aManualThermostatPinID);
+            iManualTherostat.getPin().setTrigger(GPIOPinConfig.TRIGGER_BOTH_EDGES);
+            iManualTherostat.setInputListener(this);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
 
     }
 
@@ -57,9 +61,9 @@ public class Thermostat implements PinListener {
                 iHeaterRelay.turnOff();
                 sleep(500);
             } catch (IOException ex) {
-                Logger.getLogger(Thermostat.class.getName()).log(Level.SEVERE, null, ex);
+                ex.printStackTrace();
             } catch (InterruptedException ex) {
-                Logger.getLogger(Thermostat.class.getName()).log(Level.SEVERE, null, ex);
+                ex.printStackTrace();
             }
         }
     }
@@ -78,11 +82,11 @@ public class Thermostat implements PinListener {
                     if (tPin == iModeSwitch.getPin()) {
                         if (event.getValue() == ON) {  // pushing down
                             try {
-                                System.out.println("Switch MODE!!!");
                                 iController.switchMode();
+                                System.out.println("Switch to MODE " + iController.getState());
                                 Thread.sleep(600);
                             } catch (InterruptedException | IOException ex) {
-                                Logger.getLogger(Thermostat.class.getName()).log(Level.SEVERE, null, ex);
+                                ex.printStackTrace();
                             }
                             bouncing = false;
                         }
@@ -96,7 +100,7 @@ public class Thermostat implements PinListener {
                             if (iManualTherostat.getPin().getValue() == ON) {  // pushing down //+Vcc
                                 System.out.println("Activating Manual Thermostat!!!");
                                 iController.activateManualThermostat();
-                            }else {
+                            } else {
                                 System.out.println("Deactivating Manual Thermostat!!!");  //releasing  //GND
                                 iController.deActivateManualThermostat();
                             }
@@ -104,34 +108,40 @@ public class Thermostat implements PinListener {
                         }
                         bouncing = false;
                     }
+                    bouncing = false;
                 }
             }).start();
         } else {
-            System.out.println("Bouncing in Thermostat!!");
+            System.out.println("Bouncing in Thermostat: Mode changer!!");
         }
     }
 
-    public void stop() throws IOException {
-        if (iStatusLED != null) {
-            iStatusLED.close();
-        }
-        if (iHeaterRelay != null) {
-            iHeaterRelay.close();
-        }
-        if (iGreenLED != null) {
-            iGreenLED.close();
-        }
-        if (iYellowLED != null) {
-            iYellowLED.close();
-        }
-        if (iRedLED != null) {
-            iRedLED.close();
-        }
-        if (iModeSwitch != null) {
-            iModeSwitch.close();
-        }
-        if (iManualTherostat != null) {
-            iManualTherostat.close();
+    public void stop() {
+        try {
+            if (iStatusLED != null) {
+
+                iStatusLED.close();
+            }
+            if (iHeaterRelay != null) {
+                iHeaterRelay.close();
+            }
+            if (iGreenLED != null) {
+                iGreenLED.close();
+            }
+            if (iYellowLED != null) {
+                iYellowLED.close();
+            }
+            if (iRedLED != null) {
+                iRedLED.close();
+            }
+            if (iModeSwitch != null) {
+                iModeSwitch.close();
+            }
+            if (iManualTherostat != null) {
+                iManualTherostat.close();
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
     }
 }

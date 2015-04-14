@@ -18,7 +18,7 @@ import java.util.logging.Logger;
  */
 public class ThermostatApp {
 
-    Thermostat iThermostat;
+    //Thermostat iThermostat;
     private static int STATUS = 18;
     private static int HEATER = 7;
     private static int GREEN = 23;
@@ -28,54 +28,67 @@ public class ThermostatApp {
     private static int MODE_SWITCH_PORT = 0;
     private static int MANUAL_THERMOSTAT = 22;
     private static int MANUAL_THERMOSTAT_PORT = 0;
-    
-    
+    private static boolean live = true;
+
     public static void main(String[] args) {
-        SwitchOFF iSwitchOFF;
-        try {Thermostat iThermostat = new Thermostat(MODE_SWITCH_PORT, MODE_SWITCH, MANUAL_THERMOSTAT_PORT, MANUAL_THERMOSTAT, STATUS, GREEN, YELLOW, RED, HEATER);
-        
-            iSwitchOFF = new SwitchOFF(0, 17);
-            System.out.println("SwitchOFF pin opened and initialized!");
-            
+
+        Thermostat iThermostat = new Thermostat(MODE_SWITCH_PORT, MODE_SWITCH, MANUAL_THERMOSTAT_PORT, MANUAL_THERMOSTAT, STATUS, GREEN, YELLOW, RED, HEATER);
+        SwitchOFF iSwitchOFF = new SwitchOFF(0, 17);
+        System.out.println("SwitchOFF pin opened and initialized!");
+
+//        
+//        new Thread(new Runnable() {
+//            public void run() {
+//                try {
+//                    System.out.println("!iSwitchOFF.terminateApp outside: "+!iSwitchOFF.terminateApp());
+//                    while (!iSwitchOFF.terminateApp()) {
+//                        System.out.println("!iSwitchOFF.terminateApp inside: "+!iSwitchOFF.terminateApp());
+//                        Thread.sleep(2000);
+//                    }
+//                } catch (InterruptedException e) {
+//                    System.out.println("Interrupted ex in switchoff sleep 2000");
+//                    e.printStackTrace();
+//                }
+//            }
+//        }).start();
+        while (!iSwitchOFF.terminateApp()) {
+            System.out.println("!iSwitchOFF.terminateApp inside: " + !iSwitchOFF.terminateApp());
             try {
-                for (int i = 0; i < 20; i++){
-                    System.out.println("zzzz "+i);
-                    Thread.sleep(1000);
-                }
+                Thread.sleep(30000);
             } catch (InterruptedException ex) {
                 ex.printStackTrace();
             }
-            iSwitchOFF.close();
-        } catch (IOException ex) {
-            ex.printStackTrace();
         }
 
+        System.out.println("Ending Application");
+        iThermostat.stop();
+        iSwitchOFF.close();
+
         /*try {
-            System.out.println("Helllo wwwworld");
-            //final Process p = Runtime.getRuntime().exec("sudo shutdown -h now");
-            final Process p = Runtime.getRuntime().exec("ls");
+         System.out.println("Helllo wwwworld");
+         //final Process p = Runtime.getRuntime().exec("sudo shutdown -h now");
+         final Process p = Runtime.getRuntime().exec("ls");
 
-            new Thread(new Runnable() {
-                public void run() {
-                    BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
-                    String line = null;
-                    try {
-                        while ((line = input.readLine()) != null) {
-                            System.out.println(line);
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }).start();
+         new Thread(new Runnable() {
+         public void run() {
+         BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
+         String line = null;
+         try {
+         while ((line = input.readLine()) != null) {
+         System.out.println(line);
+         }
+         } catch (IOException e) {
+         e.printStackTrace();
+         }
+         }
+         }).start();
 
-            p.waitFor();
-        } catch (IOException ex) {
-            System.out.println("Oh my god we all gonna die!!");
-        } catch (InterruptedException ex) {
-            System.out.println("Oh my god we all gonna die2!!");
-        }*/
-
+         p.waitFor();
+         } catch (IOException ex) {
+         System.out.println("Oh my god we all gonna die!!");
+         } catch (InterruptedException ex) {
+         System.out.println("Oh my god we all gonna die2!!");
+         }*/
     }
 
 }

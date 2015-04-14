@@ -9,6 +9,7 @@ package thermostatapp;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import jdk.dio.DeviceConfig;
 import jdk.dio.DeviceManager;
 import jdk.dio.gpio.GPIOPin;
 import jdk.dio.gpio.GPIOPinConfig;
@@ -24,8 +25,8 @@ public class Led {
     private boolean iInitialStatus = false;
     
     public Led(int aPin) throws IOException{
-        //GPIOPinConfig tConfig = new GPIOPinConfig(0, aPin, GPIOPinConfig.DIR_OUTPUT_ONLY, GPIOPinConfig.MODE_OUTPUT_PUSH_PULL, GPIOPinConfig.TRIGGER_BOTH_EDGES, iInitialStatus);
-        iLED = (GPIOPin)DeviceManager.open(aPin);
+        GPIOPinConfig tConfig = new GPIOPinConfig(DeviceConfig.DEFAULT, aPin, GPIOPinConfig.DIR_OUTPUT_ONLY, GPIOPinConfig.MODE_OUTPUT_PUSH_PULL, GPIOPinConfig.TRIGGER_BOTH_EDGES, iInitialStatus);
+        iLED = (GPIOPin)DeviceManager.open(tConfig);
         iLED.setValue(iInitialStatus);
     }
     
@@ -44,6 +45,7 @@ public class Led {
     }
     
     public void setValue(boolean aValue) throws IOException{
+        System.out.println("Turn led "+ (aValue ? "on." : "off."));
         iLED.setValue(aValue);
     }
     

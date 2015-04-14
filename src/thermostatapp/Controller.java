@@ -49,6 +49,10 @@ class Controller{
         return iState;
     }
     
+    public int getState(){
+        return iState;
+    }
+    
     private void activateOutput() throws IOException{
         switch (iState){
             case 1: 

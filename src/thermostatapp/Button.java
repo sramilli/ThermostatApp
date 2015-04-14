@@ -19,11 +19,11 @@ import jdk.dio.gpio.PinListener;
  *
  * @author Ste
  */
-public class Switch{
+public class Button{
     
     private GPIOPin iSwitch;
     
-    public Switch(int aPort, int aPin) throws IOException{
+    public Button(int aPort, int aPin) throws IOException{
                 GPIOPinConfig pinConfig = new GPIOPinConfig(aPort, aPin, GPIOPinConfig.DIR_INPUT_ONLY, DeviceConfig.DEFAULT, GPIOPinConfig.TRIGGER_RISING_EDGE, false);
                 iSwitch = DeviceManager.open(pinConfig);
                 //iSwitch.setInputListener(this);

@@ -25,24 +25,24 @@ public class Thermostat implements PinListener {
     private Led iGreenLED;
     private Led iYellowLED;
     private Led iRedLED;
-    private Switch iModeSwitch;
-    private Switch iManualTherostat;
+    private Button iModeButton;
+    private Button iManualTherostat;
     private Controller iController;
 
     public static boolean ON = true;
     public static boolean OFF = false;
 
-    public Thermostat(int aModeSwitchPortID, int aModeSwitchPinID, int aManualThermostatPortID, int aManualThermostatPinID, int aStatusLEDPinNumber, int aGreenLEDPinNumber, int aYellowLEDPinNumber, int aRedLEDPinNumber, int aHeaterRELAYPinNumber) {
+    public Thermostat(int aModeButtonPortID, int aModeButtonPinID, int aManualThermostatPortID, int aManualThermostatPinID, int aStatusLEDPinNumber, int aGreenLEDPinNumber, int aYellowLEDPinNumber, int aRedLEDPinNumber, int aHeaterRELAYPinNumber) {
         try {
             iStatusLED = new Led(aStatusLEDPinNumber);
             iGreenLED = new Led(aGreenLEDPinNumber);
             iYellowLED = new Led(aYellowLEDPinNumber);
             iRedLED = new Led(aRedLEDPinNumber);
             iHeaterRelay = new Relay(aHeaterRELAYPinNumber);
-            iModeSwitch = new Switch(aModeSwitchPortID, aModeSwitchPinID);
-            iModeSwitch.setInputListener(this);
+            iModeButton = new Button(aModeButtonPortID, aModeButtonPinID);
+            iModeButton.setInputListener(this);
             iController = new Controller(iStatusLED, iGreenLED, iYellowLED, iRedLED, iHeaterRelay);
-            iManualTherostat = new Switch(aManualThermostatPortID, aManualThermostatPinID);
+            iManualTherostat = new Button(aManualThermostatPortID, aManualThermostatPinID);
             iManualTherostat.getPin().setTrigger(GPIOPinConfig.TRIGGER_BOTH_EDGES);
             iManualTherostat.setInputListener(this);
         } catch (IOException ex) {
@@ -79,7 +79,7 @@ public class Thermostat implements PinListener {
                     bouncing = true;
                     GPIOPin tPin = event.getDevice();
                     //Its the mode switcher button
-                    if (tPin == iModeSwitch.getPin()) {
+                    if (tPin == iModeButton.getPin()) {
                         if (event.getValue() == ON) {  // pushing down
                             try {
                                 iController.switchMode();
@@ -134,8 +134,8 @@ public class Thermostat implements PinListener {
             if (iRedLED != null) {
                 iRedLED.close();
             }
-            if (iModeSwitch != null) {
-                iModeSwitch.close();
+            if (iModeButton != null) {
+                iModeButton.close();
             }
             if (iManualTherostat != null) {
                 iManualTherostat.close();

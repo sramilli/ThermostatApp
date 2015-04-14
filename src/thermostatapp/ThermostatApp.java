@@ -19,21 +19,23 @@ import java.util.logging.Logger;
 public class ThermostatApp {
 
     //Thermostat iThermostat;
-    private static int STATUS = 18;
-    private static int HEATER = 7;
-    private static int GREEN = 23;
-    private static int YELLOW = 25;
-    private static int RED = 24;
-    private static int MODE_SWITCH = 27;
-    private static int MODE_SWITCH_PORT = 0;
+    private static int HEATER_STATUS_GREEN_LED = 18;
+    private static int HEATER_RELAY = 7;
+    private static int GREEN_LED = 23;
+    private static int YELLOW_LED = 25;
+    private static int RED_LED = 24;
+    private static int MODE_BUTTON = 27;
+    private static int MODE_BUTTON_PORT = 0;
+    private static int SHUTDOWN_BUTTON = 17;
+    private static int SHUTDOWN_BUTTON_PORT = 0;
     private static int MANUAL_THERMOSTAT = 22;
     private static int MANUAL_THERMOSTAT_PORT = 0;
     private static boolean live = true;
 
     public static void main(String[] args) {
 
-        Thermostat iThermostat = new Thermostat(MODE_SWITCH_PORT, MODE_SWITCH, MANUAL_THERMOSTAT_PORT, MANUAL_THERMOSTAT, STATUS, GREEN, YELLOW, RED, HEATER);
-        SwitchOFF iSwitchOFF = new SwitchOFF(0, 17);
+        Thermostat iThermostat = new Thermostat(MODE_BUTTON_PORT, MODE_BUTTON, MANUAL_THERMOSTAT_PORT, MANUAL_THERMOSTAT, HEATER_STATUS_GREEN_LED, GREEN_LED, YELLOW_LED, RED_LED, HEATER_RELAY);
+        SwitchOFF iSwitchOFF = new SwitchOFF(SHUTDOWN_BUTTON_PORT, SHUTDOWN_BUTTON);
         System.out.println("SwitchOFF pin opened and initialized!");
 
 //        
@@ -52,9 +54,9 @@ public class ThermostatApp {
 //            }
 //        }).start();
         while (!iSwitchOFF.terminateApp()) {
-            System.out.println("!iSwitchOFF.terminateApp inside: " + !iSwitchOFF.terminateApp());
+            //System.out.println("!iSwitchOFF.terminateApp inside: " + !iSwitchOFF.terminateApp());
             try {
-                Thread.sleep(30000);
+                Thread.sleep(5000);
             } catch (InterruptedException ex) {
                 ex.printStackTrace();
             }

@@ -98,10 +98,10 @@ public class Thermostat implements PinListener {
                         }
                         try {
                             if (iManualTherostat.getPin().getValue() == ON) {  // pushing down //+Vcc
-                                System.out.println("Activating Manual Thermostat!!!");
+                                System.out.println("Detected Manual Thermostat ON");
                                 iController.activateManualThermostat();
                             } else {
-                                System.out.println("Deactivating Manual Thermostat!!!");  //releasing  //GND
+                                System.out.println("Detected Manual Thermostat OFF");  //releasing  //GND
                                 iController.deActivateManualThermostat();
                             }
                         } catch (IOException ex) {

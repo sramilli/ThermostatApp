@@ -9,6 +9,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.security.Policy;
+import java.util.Enumeration;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -33,26 +35,38 @@ public class ThermostatApp {
     private static boolean live = true;
 
     public static void main(String[] args) {
+        //System.setProperty("jdk.dio.registry", "/home/pi/dev/config/dio.properties-raspberrypi"); 
+        //System.setProperty("java.library.path", "/home/pi/dev/build/deviceio/lib/arm/libdio.so"); 
+        
+        Properties p = System.getProperties();
+        Enumeration keys = p.keys();
+        while (keys.hasMoreElements()) {
+        String key = (String)keys.nextElement();
+        String value = (String)p.get(key);
+        System.out.println(key + ": " + value);
+        }
+        
+        
+        
+        
+        
+        //??? Configuration.setProperty("java.security.policy", "./dio.policy");
 
-        Thermostat iThermostat = new Thermostat(MODE_BUTTON_PORT, MODE_BUTTON, MANUAL_THERMOSTAT_PORT, MANUAL_THERMOSTAT, HEATER_STATUS_GREEN_LED, GREEN_LED, YELLOW_LED, RED_LED, HEATER_RELAY);
+        UART1 gsmmodule = new UART1();
+        gsmmodule.initialize();
+        //gsmmodule.test();
+        gsmmodule.stop();
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(ThermostatApp.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        //Thermostat iThermostat = new Thermostat(MODE_BUTTON_PORT, MODE_BUTTON, MANUAL_THERMOSTAT_PORT, MANUAL_THERMOSTAT, HEATER_STATUS_GREEN_LED, GREEN_LED, YELLOW_LED, RED_LED, HEATER_RELAY);
         SwitchOFF iSwitchOFF = new SwitchOFF(SHUTDOWN_BUTTON_PORT, SHUTDOWN_BUTTON);
         System.out.println("SwitchOFF pin opened and initialized!");
 
-//        
-//        new Thread(new Runnable() {
-//            public void run() {
-//                try {
-//                    System.out.println("!iSwitchOFF.terminateApp outside: "+!iSwitchOFF.terminateApp());
-//                    while (!iSwitchOFF.terminateApp()) {
-//                        System.out.println("!iSwitchOFF.terminateApp inside: "+!iSwitchOFF.terminateApp());
-//                        Thread.sleep(2000);
-//                    }
-//                } catch (InterruptedException e) {
-//                    System.out.println("Interrupted ex in switchoff sleep 2000");
-//                    e.printStackTrace();
-//                }
-//            }
-//        }).start();
+    
         while (!iSwitchOFF.terminateApp()) {
             //System.out.println("!iSwitchOFF.terminateApp inside: " + !iSwitchOFF.terminateApp());
             try {
@@ -63,7 +77,7 @@ public class ThermostatApp {
         }
 
         System.out.println("Ending Application");
-        iThermostat.stop();
+        //iThermostat.stop();
         iSwitchOFF.close();
 
         /*try {

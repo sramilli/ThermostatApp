@@ -35,40 +35,20 @@ public class ThermostatApp {
     private static boolean live = true;
 
     public static void main(String[] args) {
-        //System.setProperty("jdk.dio.registry", "/home/pi/dev/config/dio.properties-raspberrypi"); 
-        //System.setProperty("java.library.path", "/home/pi/dev/build/deviceio/lib/arm/libdio.so"); 
         
-        Properties p = System.getProperties();
-        Enumeration keys = p.keys();
-        while (keys.hasMoreElements()) {
-        String key = (String)keys.nextElement();
-        String value = (String)p.get(key);
-        System.out.println(key + ": " + value);
-        }
+        //Starts the Thermostat
+        Thermostat iThermostat = new Thermostat(MODE_BUTTON_PORT, MODE_BUTTON, MANUAL_THERMOSTAT_PORT, MANUAL_THERMOSTAT, HEATER_STATUS_GREEN_LED, GREEN_LED, YELLOW_LED, RED_LED, HEATER_RELAY);
+        //iThermostat.testSendSMS();
         
         
         
-        
-        
-        //??? Configuration.setProperty("java.security.policy", "./dio.policy");
-
-        UART1 gsmmodule = new UART1();
-        gsmmodule.initialize();
-        //gsmmodule.test();
-        gsmmodule.stop();
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(ThermostatApp.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-        //Thermostat iThermostat = new Thermostat(MODE_BUTTON_PORT, MODE_BUTTON, MANUAL_THERMOSTAT_PORT, MANUAL_THERMOSTAT, HEATER_STATUS_GREEN_LED, GREEN_LED, YELLOW_LED, RED_LED, HEATER_RELAY);
+      
+        //Starts the switchOFF button
         SwitchOFF iSwitchOFF = new SwitchOFF(SHUTDOWN_BUTTON_PORT, SHUTDOWN_BUTTON);
         System.out.println("SwitchOFF pin opened and initialized!");
-
-    
+        
+        //Holds the application running until it detects the button press
         while (!iSwitchOFF.terminateApp()) {
-            //System.out.println("!iSwitchOFF.terminateApp inside: " + !iSwitchOFF.terminateApp());
             try {
                 Thread.sleep(5000);
             } catch (InterruptedException ex) {
@@ -76,10 +56,21 @@ public class ThermostatApp {
             }
         }
 
-        System.out.println("Ending Application");
-        //iThermostat.stop();
-        iSwitchOFF.close();
+        
 
+        
+
+        iSwitchOFF.close();
+        iThermostat.stop();
+        iThermostat = null;
+        
+
+        
+        
+        
+        
+        
+        
         /*try {
          System.out.println("Helllo wwwworld");
          //final Process p = Runtime.getRuntime().exec("sudo shutdown -h now");
@@ -105,6 +96,18 @@ public class ThermostatApp {
          } catch (InterruptedException ex) {
          System.out.println("Oh my god we all gonna die2!!");
          }*/
+        
+                //System.setProperty("jdk.dio.registry", "/home/pi/dev/config/dio.properties-raspberrypi"); 
+        //System.setProperty("java.library.path", "/home/pi/dev/build/deviceio/lib/arm/libdio.so"); 
+        
+        /*Properties p = System.getProperties();
+        Enumeration keys = p.keys();
+        while (keys.hasMoreElements()) {
+        String key = (String)keys.nextElement();
+        String value = (String)p.get(key);
+        System.out.println(key + ": " + value);
+        }*/
+        //??? Configuration.setProperty("java.security.policy", "./dio.policy");
     }
 
 }

@@ -66,14 +66,15 @@ public class SwitchOFF implements PinListener {
     @Override
     public void valueChanged(final PinEvent event) {
         if (!bouncing) {
-            System.out.println("Switching off push detected!");
             bouncing = true;
             new Thread(new Runnable() {
                 @Override
                 public void run() {
                     GPIOPin tPin = event.getDevice();
                     if (tPin == iSwitchOFF) {
+                        
                         if (event.getValue() == ON) {
+                            System.out.println("Switching off push detected!");
                             try {
                                 //turn off the PI
                                 iTerminateApp = true;
@@ -113,6 +114,7 @@ public class SwitchOFF implements PinListener {
     public void close() {
         if (iSwitchOFF != null) {
             try {
+                iSwitchOFF.setInputListener(null);
                 iSwitchOFF.close();
             } catch (IOException ex) {
                 ex.printStackTrace();

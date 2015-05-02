@@ -14,6 +14,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import static java.lang.Thread.sleep;
 import java.nio.channels.Channels;
+import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.logging.Level;
@@ -58,44 +59,41 @@ public class UART1 {
                 i++;
             }*/
             
-            /*uart = (UART) DeviceManager.open(UART_DEVICE_ID);
-            uart.setDataBits(UARTConfig.DATABITS_7);
+            //uart = (UART) DeviceManager.open(100);
+            
             //uart.setBaudRate(9600);
-            uart.setBaudRate(19200);
-            uart.setParity(0);
-            uart.setStopBits(1);
-            System.out.println("sleeping 2 sec...");
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(UART1.class.getName()).log(Level.SEVERE, null, ex);
-            }*/
+            //uart.setDataBits(7);
+            //uart.setBaudRate(19200);
             
-            UARTConfig config = new UARTConfig("ttyAMA0", 0, 9600, UARTConfig.DATABITS_7, UARTConfig.PARITY_NONE, UARTConfig.STOPBITS_1, UARTConfig.FLOWCONTROL_NONE);
-            uart = (UART) DeviceManager.open(config);
-            uart.setDataBits(UARTConfig.DATABITS_7);
-            uart.setDataBits(UARTConfig.DATABITS_7);
-            uart.setDataBits(UARTConfig.DATABITS_7);
-            uart.setDataBits(UARTConfig.DATABITS_7);
-            uart.setDataBits(UARTConfig.DATABITS_7);
-            uart.setDataBits(UARTConfig.DATABITS_7);
-            uart.setDataBits(UARTConfig.DATABITS_7);
-            
+            //these two are default
+            //uart.setParity(0);
+            //uart.setStopBits(1);    //this resets the DataBits to 8!!!!
+
 
             
-            System.out.print("BaudRate: " + uart.getBaudRate()); 
-            System.out.print("DataBits: " + uart.getDataBits()); 
-            System.out.print("Parity: " + uart.getParity()); 
-            System.out.println("StopBits: " + uart.getStopBits());
+            //This works aswell
+            UARTConfig config = new UARTConfig("ttyAMA0", 0, 9600, UARTConfig.DATABITS_8, UARTConfig.PARITY_NONE, UARTConfig.STOPBITS_1, UARTConfig.FLOWCONTROL_NONE);
+            uart = (UART) DeviceManager.open(config);
+
+            Thread.sleep(4000);
+            System.out.print(" BaudRate: " + uart.getBaudRate()); 
+            System.out.print(" DataBits: " + uart.getDataBits()); 
+            System.out.print(" Parity: " + uart.getParity()); 
+            System.out.println(" StopBits: " + uart.getStopBits());
+            
             serialInputStream = Channels.newInputStream(uart);
             serialOutputStream = Channels.newOutputStream(uart);
-            serialBufferedReader = new BufferedReader(new InputStreamReader(serialInputStream));
-            serialBufferedWriter = new BufferedWriter(new OutputStreamWriter(serialOutputStream));
+            //serialBufferedReader = new BufferedReader(new InputStreamReader(serialInputStream));
+            //serialBufferedWriter = new BufferedWriter(new OutputStreamWriter(serialOutputStream));
             System.out.println("UART connection ready!");
+                        System.out.println("sleeping 4 sec...");
+
+            Thread.sleep(4000);
+
             
 
-        } catch (IOException ex ) {
-            System.out.println(ex);
+        } catch (Throwable ex ) {
+            ex.printStackTrace();
         }
             
 
@@ -124,10 +122,16 @@ public class UART1 {
             // hangup
             sendCommand("ATH0\r");
             readResponse();*/
-            sendCommand("AT+CREG?\r");//should be 0,5 // or+CREG: 0,1? //+CREG: 0,0
+            
+            
+            /*sendCommand("AT+CREG?\r");//should be 0,5 // or+CREG: 0,1? //+CREG: 0,0
             readResponse();
             sendCommand("AT+COPS?\r");
-            readResponse();
+            readResponse();*/
+            
+            /*System.out.print("Charset: "+Charset.defaultCharset().toString());
+            System.out.println("System line saparator: -->"+System.getProperty("line.separator")+"<--");*/
+            
             sendCommand("AT\r");
             readResponse();
             //sendCommand("AT+CMGF=?\r");
@@ -139,13 +143,14 @@ public class UART1 {
             sendCommand("AT+CSCA=?\r");
             //sendCommand("AT+CSCA?\r");
             readResponse();
-            sendCommand("AT+CMGS=\"+46700447531\"\r\n");
+            sendCommand("AT+CMGS=\"+46700447531\"\r");
             //sendCommand("AT+CMGS=\"+393496191740\"\r");
             readResponse();
             //sleep(3000);
             sendCommand("Prova sms"+ctrlZ);
             sleep(5000);
             readResponse();
+            sleep(5000);
             //sendCommand("AT+CGMM\r");
         } catch (InterruptedException ex ) {
             System.out.println(ex);
@@ -157,13 +162,14 @@ public class UART1 {
     public synchronized void sendCommand(String aCommand) throws InterruptedException{
         try {
             // send AT-command
+            sleep(5000);
             response = new byte[300]; //reset the output
             System.out.println("--RQ start------");
             System.out.println(aCommand);
             System.out.println("----------------\n");
             serialOutputStream.write(aCommand.getBytes());
             serialOutputStream.flush();
-            sleep(5000);
+            
             
         } catch (IOException ioe) {
             System.out.println("Exception = " + ioe.getMessage());
@@ -171,7 +177,7 @@ public class UART1 {
     }
     
     public synchronized String readResponse() throws InterruptedException{
-        try{
+        /*try{
             int bytesRead = 1;
             if (!troubleReadingResponse) {
                 bytesRead = serialInputStream.read(response);
@@ -191,14 +197,18 @@ public class UART1 {
         } catch (IOException ioe) {
             System.out.println("Exception = " + ioe.getMessage());
         }
-        return new String(response);
+        return new String(response);*/ return "hejhej";
     }
 
     public void stop() {
         try {
             System.out.println("Closing serialBufferedRW");
-            serialBufferedReader.close();
-            serialBufferedWriter.close();
+            if (serialBufferedReader != null){
+                serialBufferedReader.close();
+            }
+            if (serialBufferedWriter != null){
+                serialBufferedWriter.close();
+            }
         } catch (IOException ex) {
             System.out.println("Exception closing serialBufferedRW = " + ex);
         }

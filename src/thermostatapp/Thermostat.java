@@ -7,8 +7,6 @@ package thermostatapp;
 
 import java.io.IOException;
 import static java.lang.Thread.sleep;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import jdk.dio.gpio.GPIOPin;
 import jdk.dio.gpio.GPIOPinConfig;
 import jdk.dio.gpio.PinEvent;
@@ -28,9 +26,12 @@ public class Thermostat implements PinListener {
     private Button iModeButton;
     private Button iManualTherostat;
     private Controller iController;
+    private SMSGateway iSMSGateway;
 
     public static boolean ON = true;
     public static boolean OFF = false;
+    
+    private boolean bouncing = false;
 
     public Thermostat(int aModeButtonPortID, int aModeButtonPinID, int aManualThermostatPortID, int aManualThermostatPinID, int aStatusLEDPinNumber, int aGreenLEDPinNumber, int aYellowLEDPinNumber, int aRedLEDPinNumber, int aHeaterRELAYPinNumber) {
         try {
@@ -45,6 +46,9 @@ public class Thermostat implements PinListener {
             iManualTherostat = new Button(aManualThermostatPortID, aManualThermostatPinID);
             iManualTherostat.getPin().setTrigger(GPIOPinConfig.TRIGGER_BOTH_EDGES);
             iManualTherostat.setInputListener(this);
+            //iSMSGateway.getInstance();
+            iSMSGateway = new SMSGateway();
+            iSMSGateway.initialize();
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -67,8 +71,12 @@ public class Thermostat implements PinListener {
             }
         }
     }
+    
+    public void testSendSMS(){
+        iSMSGateway.sendText("+46700447531", "I hope this works");
+    }
 
-    private boolean bouncing = false;
+
 
     @Override
     public void valueChanged(final PinEvent event) {
@@ -119,26 +127,41 @@ public class Thermostat implements PinListener {
     public void stop() {
         try {
             if (iStatusLED != null) {
-
                 iStatusLED.close();
+                iStatusLED = null;
             }
             if (iHeaterRelay != null) {
                 iHeaterRelay.close();
+                iHeaterRelay = null;
             }
             if (iGreenLED != null) {
                 iGreenLED.close();
+                iGreenLED = null;
             }
             if (iYellowLED != null) {
                 iYellowLED.close();
+                iYellowLED = null;
             }
             if (iRedLED != null) {
                 iRedLED.close();
+                iRedLED = null;
             }
             if (iModeButton != null) {
+                iModeButton.setInputListener(null);
                 iModeButton.close();
+                iModeButton = null;
             }
             if (iManualTherostat != null) {
+                iManualTherostat.setInputListener(null);
                 iManualTherostat.close();
+                iManualTherostat = null;
+            }
+            if (iSMSGateway != null){
+                iSMSGateway.stop();
+                iSMSGateway = null;
+            }
+            if (iController != null){
+                iController = null;
             }
         } catch (IOException ex) {
             ex.printStackTrace();

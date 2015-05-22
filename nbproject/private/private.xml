@@ -5,11 +5,9 @@
         <group>
             <file>file:/C:/Users/Ste/Desktop/Projects/heater/ThermostatApp/src/thermostatapp/Thermostat.java</file>
             <file>file:/C:/Users/Ste/Desktop/Projects/heater/ThermostatApp/src/thermostatapp/Controller.java</file>
-            <file>file:/C:/Users/Ste/Desktop/Projects/heater/ThermostatApp/src/thermostatapp/UART3.java</file>
-            <file>file:/C:/Users/Ste/Desktop/Projects/heater/ThermostatApp/src/thermostatapp/SwitchOFF.java</file>
             <file>file:/C:/Users/Ste/Desktop/Projects/heater/ThermostatApp/src/thermostatapp/SMSGateway.java</file>
             <file>file:/C:/Users/Ste/Desktop/Projects/heater/ThermostatApp/src/thermostatapp/ThermostatApp.java</file>
-            <file>file:/C:/Users/Ste/Desktop/Projects/heater/ThermostatApp/src/thermostatapp/Led.java</file>
+            <file>file:/C:/Users/Ste/Desktop/Projects/heater/ThermostatApp/src/thermostatapp/SMS.java</file>
         </group>
     </open-files>
 </project-private>

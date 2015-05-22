@@ -30,7 +30,7 @@ public class Thermostat implements PinListener {
 
     public static boolean ON = true;
     public static boolean OFF = false;
-    
+
     private boolean bouncing = false;
 
     public Thermostat(int aModeButtonPortID, int aModeButtonPinID, int aManualThermostatPortID, int aManualThermostatPinID, int aStatusLEDPinNumber, int aGreenLEDPinNumber, int aYellowLEDPinNumber, int aRedLEDPinNumber, int aHeaterRELAYPinNumber) {
@@ -71,12 +71,27 @@ public class Thermostat implements PinListener {
             }
         }
     }
-    
-    public void testSendSMS(){
-        iSMSGateway.sendText("+46700447531", "I hope this works");
+
+    /*public void testSendSMS(){
+     iSMSGateway.sendText("+46700447531", "I hope this works");
+     }*/
+    public void testSendSMS() {
+        iSMSGateway.sendTextAndReadWithoutListenerTEST("This is anooother test");
     }
 
-
+    public void testLoopingAT() {
+        iSMSGateway.testLoopingAT();
+    }
+    
+    public String testReadAllMessagesRaw(){
+        return iSMSGateway.readAllMessagesRaw();
+    }
+    
+    public void testReadAllMessages(){
+        for(SMS tSMS :iSMSGateway.readAllMessages()){
+            System.out.println(tSMS);
+        }
+    }
 
     @Override
     public void valueChanged(final PinEvent event) {
@@ -120,8 +135,15 @@ public class Thermostat implements PinListener {
                 }
             }).start();
         } else {
-            System.out.println("Bouncing in Thermostat: Mode changer!!");
+            System.out.println("Bouncing in Thermostat: Mode changer + Manual Thermostat!!");
         }
+    }
+
+    public String getStatus() {
+        StringBuffer tResponse = new StringBuffer();
+        tResponse.append("Running since: " + ThermostatApp.iRunningSince+"\n");
+        tResponse.append("State: " + iController.getState()+"\n");
+        return tResponse.toString();
     }
 
     public void stop() {
@@ -156,11 +178,11 @@ public class Thermostat implements PinListener {
                 iManualTherostat.close();
                 iManualTherostat = null;
             }
-            if (iSMSGateway != null){
+            if (iSMSGateway != null) {
                 iSMSGateway.stop();
                 iSMSGateway = null;
             }
-            if (iController != null){
+            if (iController != null) {
                 iController = null;
             }
         } catch (IOException ex) {

@@ -11,6 +11,7 @@ import com.pi4j.io.serial.SerialDataListener;
 import com.pi4j.io.serial.SerialFactory;
 import com.pi4j.io.serial.SerialPortException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -67,12 +68,40 @@ public class SMSGateway {
     
     public List<SMS> readAllMessages(){
         List<SMS> tSMSs = new ArrayList<SMS>();
-        StringTokenizer st = new StringTokenizer(readAllMessagesRaw(), "\n");
-        String token;
-        String tFirstRow="";
-        String tSecondRow="";
+        StringTokenizer st = new StringTokenizer(readAllMessagesRaw(), "\r\n");
         int i=0;
+        List<String> tRows = new ArrayList<String>();
+        
         while (st.hasMoreTokens()){
+            tRows.add(st.nextToken());
+        }
+        boolean headClean = false, smsNotAddedYet = false;
+        SMS tSMS = new SMS();
+        
+outerLoop:        
+        for (String s:tRows){
+            while (!headClean && !s.startsWith("+CMGL") ){
+                continue outerLoop;
+            }
+            headClean = true;
+            if (s.startsWith("+CMGL")){
+                if (smsNotAddedYet){
+                    tSMS.setPosition(i++);
+                    tSMSs.add(tSMS);
+                    smsNotAddedYet = false; ///
+                }
+                tSMS = new SMS();
+                tSMS.setHeader(s);
+                continue;
+            }else {
+                tSMS.setText(tSMS.getText()+s);
+                smsNotAddedYet = true;
+                continue;
+            }
+        }
+        
+
+/*        while (st.hasMoreTokens()){
             token = st.nextToken();
             while (!token.startsWith("+CMGL") && st.hasMoreTokens()){
                 token = st.nextToken();
@@ -92,8 +121,13 @@ public class SMSGateway {
             tSMS.setHeader(tFirstRow);
             tSMS.setText(tSecondRow);
             tSMSs.add(tSMS);
-        }
+        }*/
         System.out.println("STOP READING SMS");
+        
+        //System.out.println("Inside the readAllMessages method. Printing Array: \n"+Arrays.toString(tRows.toArray()));
+        for (int j=0; j<tRows.size(); j++){
+            System.out.println("[ROW]: "+j+" "+tRows.get(j));
+        }
         
         return tSMSs;
     }
@@ -154,6 +188,7 @@ public class SMSGateway {
         while (serial.availableBytes() > 0) {
             tReply.append(serial.read());
         }
+            System.out.println("RAW messages:\n"+tReply.toString());
         return tReply.toString();
     }
 

@@ -25,7 +25,7 @@ public class SMS {
     }
 
     public String getText() {
-        return iText;
+        return iText == null ? "" : iText;
     }
 
     public void setText(String aText) {
@@ -33,7 +33,7 @@ public class SMS {
     }
 
     public String getHeader() {
-        return iHeader;
+        return iHeader == null ? "" : iHeader;
     }
 
     public void setHeader(String aHeader) {
@@ -41,7 +41,7 @@ public class SMS {
     }
     
     public String toString(){
-        return "SMS: "+iPosition+" Header: "+iHeader+" Text: "+iText;
+        return "[SMS]: "+iPosition+" [Header]: "+iHeader+" [Text]: "+iText;
     }
     
 }

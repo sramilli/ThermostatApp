@@ -58,83 +58,83 @@ public class SMSGateway {
     public void sendText(String aString) {
 
     }
-    
-    public String readAllMessagesRaw(){
+
+    public String readAllMessagesRaw() {
+        /*
+         AT+CMGL="ALL"
+         +CMGL: 1,"REC READ","Telia","","15/04/27,21:31:40+08"
+         Ditt saldo borjar bli lagt. Sla *120# lur/skicka for att kontrollera saldo. Ladda direkt via kontokort, m.telia.se/snabbladda eller las mer om de andra l
+         +CMGL: 2,"REC READ","Telia","","15/04/27,21:31:41+08"
+         addningssatten pa www.telia.se/ladda. Halsningar Telia
+         +CMGL: 3,"REC READ","+46700447531","","15/05/02,18:01:08+08"
+         Sms di prova
+         +CMGL: 4,"REC READ","+46700447531","","15/05/02,18:01:34+08"
+         Andra prova
+         +CMGL: 5,"REC READ","+46700447531","","15/05/02,18:01:51+08"
+         Terza prova
+         +CMGL: 6,"REC READ","Telia","","15/05/14,19:32:43+08"
+         Du har nu fatt 25 kr i bonus. Bonusen far du i samband med dina fyra forsta laddningar efter din registrering. Total bonus blir 100 kr. Mvh Telia
+         +CMGL: 7,"REC READ","Telia","","15/05/14,19:32:44+08"
+         Ditt kort ar nu laddat. For att se ditt saldo tryck *120# lur/skicka. For mer information om priser se www.telia.se/refill
+         +CMGL: 8,"REC READ","+46700447531","","15/05/21,22:37:34+08"
+         . 
+         +CMGL: 9,"REC READ","+46700447531","","15/05/21,22:38:21+08"
+         00510075006500730074006F000A00C80020000A0055006E00200073006F006C006F0020006D0065007300730061006700670069006F
+         +CMGL: 10,"REC READ","+46700447531","","15/05/26,22:59:28+08"
+         On
+         OK
+         */
         System.out.println("---->Sending: AT+CMGL=\"ALL\"");
         serial.write("AT+CMGL=\"ALL\"\r");
         whaitABit(3000); //TODO tweeka
         return readAnswer();
+
     }
-    
-    public List<SMS> readAllMessages(){
+
+    /**
+     * Gets all messages. But just the first line.
+     *
+     */
+    public List<SMS> getAllMessages() {
         List<SMS> tSMSs = new ArrayList<SMS>();
         StringTokenizer st = new StringTokenizer(readAllMessagesRaw(), "\r\n");
-        int i=0;
+        int i = 1;
         List<String> tRows = new ArrayList<String>();
-        
-        while (st.hasMoreTokens()){
+
+        while (st.hasMoreTokens()) {
             tRows.add(st.nextToken());
         }
         boolean headClean = false, smsNotAddedYet = false;
         SMS tSMS = new SMS();
-        
-outerLoop:        
-        for (String s:tRows){
-            while (!headClean && !s.startsWith("+CMGL") ){
+
+        outerLoop:
+        for (int j = 0; j < tRows.size() - 1; j++) {
+            String s = tRows.get(j);
+            while (!headClean && !s.startsWith("+CMGL")) {
                 continue outerLoop;
             }
             headClean = true;
-            if (s.startsWith("+CMGL")){
-                if (smsNotAddedYet){
-                    tSMS.setPosition(i++);
-                    tSMSs.add(tSMS);
-                    smsNotAddedYet = false; ///
-                }
+            if (s.startsWith("+CMGL")) {
                 tSMS = new SMS();
-                tSMS.setHeader(s);
+                tSMS.parseHeaderAndSetData(s);
                 continue;
-            }else {
-                tSMS.setText(tSMS.getText()+s);
-                smsNotAddedYet = true;
+            } else {
+                tSMS.setText(tSMS.getText() + s);
+                tSMSs.add(tSMS);
                 continue;
             }
         }
-        
 
-/*        while (st.hasMoreTokens()){
-            token = st.nextToken();
-            while (!token.startsWith("+CMGL") && st.hasMoreTokens()){
-                token = st.nextToken();
-            }
-            if (token.startsWith("+CMGL")){
-                //first sms found
-                i++;
-                tFirstRow = token.toString();
-                if (st.hasMoreTokens()){
-                    tSecondRow = st.nextToken();
-                }
-            }
-            System.out.println("--->"+i+"First row: "+tFirstRow);
-            System.out.println("--->"+i+"Second row: "+tSecondRow);
-            SMS tSMS = new SMS();
-            tSMS.setPosition(i);
-            tSMS.setHeader(tFirstRow);
-            tSMS.setText(tSecondRow);
-            tSMSs.add(tSMS);
-        }*/
-        System.out.println("STOP READING SMS");
-        
-        //System.out.println("Inside the readAllMessages method. Printing Array: \n"+Arrays.toString(tRows.toArray()));
-        for (int j=0; j<tRows.size(); j++){
-            System.out.println("[ROW]: "+j+" "+tRows.get(j));
-        }
-        
+        //System.out.println("STOP READING SMS");
+        //for (int j=0; j<tRows.size(); j++){
+        //    System.out.println("[ROW]: "+j+" "+tRows.get(j));
+        //}
         return tSMSs;
     }
-    
-    public String readMsgAtCertanPosition(int aPos){
-        System.out.println("---->Sending: AT+CMGR="+aPos);
-        serial.write("AT+CMGR="+aPos+"\r");
+
+    public String readMsgAtCertainPosition(int aPos) {
+        System.out.println("---->Sending: AT+CMGR=" + aPos);
+        serial.write("AT+CMGR=" + aPos + "\r");
         whaitABit(3000); //TODO tweeka
         return readAnswer();
     }
@@ -181,14 +181,14 @@ outerLoop:
         }
         //whaitABit(1000);
     }
-    
-        private String readAnswer() {
+
+    private String readAnswer() {
         whaitABit(1000);
         StringBuffer tReply = new StringBuffer();
         while (serial.availableBytes() > 0) {
             tReply.append(serial.read());
         }
-            System.out.println("RAW messages:\n"+tReply.toString());
+        //System.out.println("RAW messages:\n"+tReply.toString());
         return tReply.toString();
     }
 
@@ -207,5 +207,5 @@ outerLoop:
             serial = null;
         }
     }
-    
+
 }

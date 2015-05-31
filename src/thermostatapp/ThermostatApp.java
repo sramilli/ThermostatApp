@@ -57,8 +57,9 @@ public class ThermostatApp {
         //iThermostat.testSendSMS();
         //iThermostat.testLoopingAT();
         //System.out.println("---> Reading all messages: "+iThermostat.testReadAllMessagesRaw());
-        iThermostat.testReadAllMessages();
-        
+        //iThermostat.testReadAllMessages();
+        //iThermostat.testReadAllMessagesOneByOne();
+        iThermostat.startPollingIncomingCommands(false);
         //for (int i = 0; i < 10; i++){
         //    System.out.println(iThermostat.getStatus());
         //    whaitABit(5000);

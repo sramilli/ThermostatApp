@@ -7,6 +7,12 @@ package thermostatapp;
 
 import java.io.IOException;
 import static java.lang.Thread.sleep;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import jdk.dio.gpio.GPIOPin;
 import jdk.dio.gpio.GPIOPinConfig;
 import jdk.dio.gpio.PinEvent;
@@ -32,6 +38,8 @@ public class Thermostat implements PinListener {
     public static boolean OFF = false;
 
     private boolean bouncing = false;
+
+    Timer timer;
 
     public Thermostat(int aModeButtonPortID, int aModeButtonPinID, int aManualThermostatPortID, int aManualThermostatPinID, int aStatusLEDPinNumber, int aGreenLEDPinNumber, int aYellowLEDPinNumber, int aRedLEDPinNumber, int aHeaterRELAYPinNumber) {
         try {
@@ -82,15 +90,44 @@ public class Thermostat implements PinListener {
     public void testLoopingAT() {
         iSMSGateway.testLoopingAT();
     }
-    
-    public String testReadAllMessagesRaw(){
+
+    public String testReadAllMessagesRaw() {
         return iSMSGateway.readAllMessagesRaw();
     }
-    
-    public void testReadAllMessages(){
-        for(SMS tSMS :iSMSGateway.readAllMessages()){
+
+    public void testReadAllMessages() {
+        for (SMS tSMS : iSMSGateway.getAllMessages()) {
             System.out.println(tSMS);
         }
+    }
+
+    public void testReadAllMessagesOneByOne() {
+        for (SMS tSMS : iSMSGateway.getAllMessages()) {
+            System.out.println(iSMSGateway.readMsgAtCertainPosition(tSMS.getPosition()));
+        }
+    }
+
+    public void startPollingIncomingCommands(boolean aDeleteReadMessages) {
+        timer = new Timer();
+        //every 30 seconds
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                List<SMS> tSMSs = iSMSGateway.getAllMessages();
+                //for (SMS tSMS : tSMSs) {
+                //    System.out.println(tSMS);
+                //}
+                Collections.sort(tSMSs);
+                Collections.reverse(tSMSs);
+                for (SMS tSMS : tSMSs) {
+                    //take the youngest valid message
+                    if (tSMS.isValid() && tSMS.authorizationChecked()){
+                        //TODO execute the command!!!
+                        //TODO and then erase every SMS
+                    }
+                }
+            }
+        }, 0, 30 * 1000);
     }
 
     @Override
@@ -141,13 +178,17 @@ public class Thermostat implements PinListener {
 
     public String getStatus() {
         StringBuffer tResponse = new StringBuffer();
-        tResponse.append("Running since: " + ThermostatApp.iRunningSince+"\n");
-        tResponse.append("State: " + iController.getState()+"\n");
+        tResponse.append("Running since: " + ThermostatApp.iRunningSince + "\n");
+        tResponse.append("State: " + iController.getState() + "\n");
         return tResponse.toString();
     }
 
     public void stop() {
         try {
+            if (timer != null) {
+                timer.cancel();
+                timer = null;
+            }
             if (iStatusLED != null) {
                 iStatusLED.close();
                 iStatusLED = null;

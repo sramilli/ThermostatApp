@@ -114,18 +114,23 @@ public class Thermostat implements PinListener {
             @Override
             public void run() {
                 List<SMS> tSMSs = iSMSGateway.getAllMessages();
-                //for (SMS tSMS : tSMSs) {
-                //    System.out.println(tSMS);
-                //}
                 Collections.sort(tSMSs);
                 Collections.reverse(tSMSs);
+                System.out.println("List of all messages on the modem ordered by date:");
                 for (SMS tSMS : tSMSs) {
-                    //take the youngest valid message
-                    if (tSMS.isValid() && tSMS.authorizationChecked()){
-                        //TODO execute the command!!!
-                        //TODO and then erase every SMS
+                    System.out.println(tSMS);
+                }
+                for (SMS tSMS : tSMSs) {
+                    if (tSMS.isDateValid() && tSMS.senderAuthorized()) {
+                        System.out.println("SMS Valid & Authorized: -------> "+tSMS);
+                        iController.executeCommand(tSMS);
+                        //execute only last command
+                        break;
+                    } else {
+                        System.out.println("SMS discarded: "+tSMS);
                     }
                 }
+                //TODO and then erase every SMS
             }
         }, 0, 30 * 1000);
     }

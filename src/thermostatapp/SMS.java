@@ -133,22 +133,25 @@ public class SMS implements Comparable{
         return iDate.compareTo(tDateObj);
     }
 
-    boolean authorizationChecked() {
-        if (iSender == null || iSender.equals("")) return false;
+    boolean senderAuthorized() {
+        if (iSender == null || iSender.equals("")){
+            System.out.println("Sender unauthorized: missing!");
+            return false;
+        }
         if (AuthorizedUsers.getAllUsers().contains(iSender)) {
-            System.out.println("User unauthorized!");
             return true;
         }
+        System.out.println("Sender unauthorized! "+iSender);
         return false;
     }
 
-    boolean isValid() {
+    boolean isDateValid() {
         if (iSender == null || iSender.equals("") || iDate == null || iDate.equals("") || iText == null || iText.equals("")) return false;
         Date now = new Date();
-        Date beginInterval = new Date(now.getTime()-  60 * 60 * 1000);
-        Date endInterval = new Date(now.getTime()+  60 * 60 * 1000);
+        Date beginInterval = new Date(now.getTime()-  3 * 60 * 60 * 1000);
+        Date endInterval = new Date(now.getTime()+  3 * 60 * 60 * 1000);
         if (iDate.before(beginInterval) || iDate.after(endInterval)){
-            System.out.println("Date of the message is not valid!");
+            System.out.println("Date of the message "+iPosition+" is not valid! [Date]: "+now+" [Message Date]: "+iDate);
             return false;
         }else
             return true;

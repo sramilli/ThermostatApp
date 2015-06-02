@@ -9,6 +9,9 @@
             <file>file:/C:/Users/Ste/Desktop/Projects/heater/ThermostatApp/src/thermostatapp/SMSGateway.java</file>
             <file>file:/C:/Users/Ste/Desktop/Projects/heater/ThermostatApp/src/thermostatapp/ThermostatApp.java</file>
             <file>file:/C:/Users/Ste/Desktop/Projects/heater/ThermostatApp/src/thermostatapp/SMS.java</file>
+            <file>file:/C:/Users/Ste/Desktop/Projects/heater/ThermostatApp/src/thermostatapp/Command.java</file>
+            <file>file:/C:/Users/Ste/Desktop/Projects/heater/ThermostatApp/src/thermostatapp/Interpreter.java</file>
+            <file>file:/C:/Users/Ste/Desktop/Projects/heater/ThermostatApp/src/thermostatapp/Status.java</file>
         </group>
     </open-files>
 </project-private>

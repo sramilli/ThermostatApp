@@ -4,14 +4,8 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/C:/Users/Ste/Desktop/Projects/heater/ThermostatApp/src/thermostatapp/Thermostat.java</file>
-            <file>file:/C:/Users/Ste/Desktop/Projects/heater/ThermostatApp/src/thermostatapp/Controller.java</file>
-            <file>file:/C:/Users/Ste/Desktop/Projects/heater/ThermostatApp/src/thermostatapp/AuthorizedUsers.java</file>
-            <file>file:/C:/Users/Ste/Desktop/Projects/heater/ThermostatApp/src/thermostatapp/SMSGateway.java</file>
             <file>file:/C:/Users/Ste/Desktop/Projects/heater/ThermostatApp/src/thermostatapp/ThermostatApp.java</file>
-            <file>file:/C:/Users/Ste/Desktop/Projects/heater/ThermostatApp/src/thermostatapp/SMS.java</file>
-            <file>file:/C:/Users/Ste/Desktop/Projects/heater/ThermostatApp/src/thermostatapp/Command.java</file>
-            <file>file:/C:/Users/Ste/Desktop/Projects/heater/ThermostatApp/src/thermostatapp/Interpreter.java</file>
-            <file>file:/C:/Users/Ste/Desktop/Projects/heater/ThermostatApp/src/thermostatapp/Status.java</file>
+            <file>file:/C:/Users/Ste/Desktop/Projects/heater/ThermostatApp/src/thermostatapp/Led.java</file>
         </group>
     </open-files>
 </project-private>

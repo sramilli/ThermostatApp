@@ -107,7 +107,7 @@ public class Thermostat implements PinListener {
         }
     }
 
-    public void startPollingIncomingCommands(boolean aDeleteReadMessages) {
+    public void startPollingIncomingCommands(boolean aDeleteReadMessages, int aSeconds) {
         timer = new Timer();
         //every 30 seconds
         timer.schedule(new TimerTask() {
@@ -132,7 +132,7 @@ public class Thermostat implements PinListener {
                 }
                 //TODO and then erase every SMS
             }
-        }, 0, 30 * 1000);
+        }, 0, aSeconds * 1000);
     }
 
     @Override

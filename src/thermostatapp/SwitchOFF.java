@@ -28,9 +28,9 @@ public class SwitchOFF implements PinListener {
     private GPIOPin iSwitchOFF;
     private boolean iTerminateApp = false;
 
-    public SwitchOFF(int aPort, int aPin) {
+    public SwitchOFF(int aPin) {
         try {
-            GPIOPinConfig pinConfig = new GPIOPinConfig(aPort, aPin, GPIOPinConfig.DIR_INPUT_ONLY, DeviceConfig.DEFAULT, GPIOPinConfig.TRIGGER_RISING_EDGE, false);
+            GPIOPinConfig pinConfig = new GPIOPinConfig(0, aPin, GPIOPinConfig.DIR_INPUT_ONLY, DeviceConfig.DEFAULT, GPIOPinConfig.TRIGGER_RISING_EDGE, false);
             iSwitchOFF = DeviceManager.open(pinConfig);
             //Thread.sleep(100);
             iSwitchOFF.setInputListener(this);

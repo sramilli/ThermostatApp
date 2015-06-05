@@ -92,7 +92,7 @@ class Controller {
                 default:
                     System.out.println("Controller switching: This should never happen");
             }
-        } catch (IOException ex) {
+        } catch (Throwable ex) {
             ex.printStackTrace();
         }
     }

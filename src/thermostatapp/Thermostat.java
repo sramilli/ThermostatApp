@@ -5,11 +5,14 @@
  */
 package thermostatapp;
 
+import com.pi4j.io.gpio.GpioPin;
+import com.pi4j.io.gpio.event.GpioPinDigitalStateChangeEvent;
+import com.pi4j.io.gpio.event.GpioPinListenerDigital;
 import java.io.IOException;
 import static java.lang.Thread.sleep;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -22,7 +25,7 @@ import jdk.dio.gpio.PinListener;
  *
  * @author Ste
  */
-public class Thermostat implements PinListener {
+public class Thermostat implements GpioPinListenerDigital {
 
     private Led iStatusLED;
     private Relay iHeaterRelay;
@@ -41,23 +44,23 @@ public class Thermostat implements PinListener {
 
     Timer timer;
 
-    public Thermostat(int aModeButtonPortID, int aModeButtonPinID, int aManualThermostatPortID, int aManualThermostatPinID, int aStatusLEDPinNumber, int aGreenLEDPinNumber, int aYellowLEDPinNumber, int aRedLEDPinNumber, int aHeaterRELAYPinNumber) {
+    public Thermostat(int aModeButtonPinID, int aManualThermostatPinID, int aStatusLEDPinNumber, int aGreenLEDPinNumber, int aYellowLEDPinNumber, int aRedLEDPinNumber, int aHeaterRELAYPinNumber) {
         try {
             iStatusLED = new Led(aStatusLEDPinNumber);
             iGreenLED = new Led(aGreenLEDPinNumber);
             iYellowLED = new Led(aYellowLEDPinNumber);
             iRedLED = new Led(aRedLEDPinNumber);
             iHeaterRelay = new Relay(aHeaterRELAYPinNumber);
-            iModeButton = new Button(aModeButtonPortID, aModeButtonPinID);
+            iModeButton = new Button(aModeButtonPinID);
             iModeButton.setInputListener(this);
             iController = new Controller(iStatusLED, iGreenLED, iYellowLED, iRedLED, iHeaterRelay);
-            iManualTherostat = new Button(aManualThermostatPortID, aManualThermostatPinID);
-            iManualTherostat.getPin().setTrigger(GPIOPinConfig.TRIGGER_BOTH_EDGES);
+            iManualTherostat = new Button(aManualThermostatPinID);
+            //iManualTherostat.getPin().setTrigger(GPIOPinConfig.TRIGGER_BOTH_EDGES);
             iManualTherostat.setInputListener(this);
             //iSMSGateway.getInstance();
             iSMSGateway = new SMSGateway();
             iSMSGateway.initialize();
-        } catch (IOException ex) {
+        } catch (Throwable ex) {
             ex.printStackTrace();
         }
 
@@ -72,8 +75,6 @@ public class Thermostat implements PinListener {
                 System.out.println("Turning off " + i);
                 iHeaterRelay.turnOff();
                 sleep(500);
-            } catch (IOException ex) {
-                ex.printStackTrace();
             } catch (InterruptedException ex) {
                 ex.printStackTrace();
             }
@@ -122,12 +123,15 @@ public class Thermostat implements PinListener {
                 }
                 for (SMS tSMS : tSMSs) {
                     if (tSMS.isDateValid() && tSMS.senderAuthorized()) {
-                        System.out.println("SMS Valid & Authorized: -------> "+tSMS);
+                        System.out.println("SMS Valid & Authorized: -------> " + tSMS);
                         iController.executeCommand(tSMS);
+                        if (aDeleteReadMessages) {
+                            //TODO delete all messages
+                        }
                         //execute only last command
                         break;
                     } else {
-                        System.out.println("SMS discarded: "+tSMS);
+                        System.out.println("SMS discarded: " + tSMS);
                     }
                 }
                 //TODO and then erase every SMS
@@ -136,6 +140,29 @@ public class Thermostat implements PinListener {
     }
 
     @Override
+    public void handleGpioPinDigitalStateChangeEvent(GpioPinDigitalStateChangeEvent event) {
+        GpioPin tPin = event.getPin();
+        if (tPin == iModeButton.getPin()) {
+            System.out.println("Mode Button pressed!");
+            //TODO
+            //iController.switchMode();
+            //System.out.println("Switch to MODE " + iController.getState());
+        } else if (tPin == iManualTherostat.getPin()) {
+            System.out.println("Manual thermostat change!");
+            //TODO
+            /*if (iManualTherostat.getPin().getValue() == ON) {  // pushing down //+Vcc
+             System.out.println("Detected Manual Thermostat ON");
+             iController.activateManualThermostat();
+             } else {
+             System.out.println("Detected Manual Thermostat OFF");  //releasing  //GND
+             iController.deActivateManualThermostat();
+             }*/
+        }
+
+    }
+
+/////////////
+    /*
     public void valueChanged(final PinEvent event) {
         if (!bouncing) {
             new Thread(new Runnable() {
@@ -180,6 +207,8 @@ public class Thermostat implements PinListener {
             System.out.println("Bouncing in Thermostat: Mode changer + Manual Thermostat!!");
         }
     }
+    */
+///////////
 
     public String getStatus() {
         StringBuffer tResponse = new StringBuffer();
@@ -231,7 +260,7 @@ public class Thermostat implements PinListener {
             if (iController != null) {
                 iController = null;
             }
-        } catch (IOException ex) {
+        } catch (Throwable ex) {
             ex.printStackTrace();
         }
     }

@@ -6,13 +6,21 @@
 
 package thermostatapp;
 
-import java.io.IOException;
+import com.pi4j.io.gpio.GpioController;
+import com.pi4j.io.gpio.GpioFactory;
+import com.pi4j.io.gpio.GpioPinDigitalOutput;
+import com.pi4j.io.gpio.Pin;
+import com.pi4j.io.gpio.PinState;
+import com.pi4j.io.gpio.RaspiPin;
+import com.pi4j.io.gpio.impl.PinImpl;
+
+/*import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import jdk.dio.DeviceConfig;
 import jdk.dio.DeviceManager;
 import jdk.dio.gpio.GPIOPin;
-import jdk.dio.gpio.GPIOPinConfig;
+import jdk.dio.gpio.GPIOPinConfig;*/
 
 /**
  *
@@ -20,37 +28,35 @@ import jdk.dio.gpio.GPIOPinConfig;
  */
 public class Relay {
     
-    private GPIOPin iRelay;
-
-    private boolean iInitialStatus = true;
+    /*private GPIOPin iRelay;
+    private boolean iInitialStatus = true;*/
     
-    public Relay(int aPin) throws IOException{
-        GPIOPinConfig tConfig = new GPIOPinConfig(DeviceConfig.DEFAULT, aPin, GPIOPinConfig.DIR_OUTPUT_ONLY, GPIOPinConfig.MODE_OUTPUT_PUSH_PULL, GPIOPinConfig.TRIGGER_BOTH_EDGES, iInitialStatus);
+    final GpioController gpio = GpioFactory.getInstance();
+    
+    public Relay(int aPin){
+        /*GPIOPinConfig tConfig = new GPIOPinConfig(DeviceConfig.DEFAULT, aPin, GPIOPinConfig.DIR_OUTPUT_ONLY, GPIOPinConfig.MODE_OUTPUT_PUSH_PULL, GPIOPinConfig.TRIGGER_BOTH_EDGES, iInitialStatus);
         iRelay = (GPIOPin)DeviceManager.open(tConfig);
-        iRelay.setValue(iInitialStatus);
+        iRelay.setValue(iInitialStatus);*/
+        final GpioPinDigitalOutput pin = gpio.provisionDigitalOutputPin(Pi4jHelper.getPin(aPin), "PIN "+aPin, PinState.HIGH);
+        pin.setShutdownOptions(true, PinState.HIGH);
     }
     
-    public void turnOn() throws IOException{
-        iRelay.setValue(false);
+    public void turnOn(){
+        gpio.high();
     }
     
-    public void turnOff() throws IOException{
-        iRelay.setValue(true);
+    public void turnOff(){
+        gpio.low();
     }
     
-    public void setValue(boolean aValue) throws IOException{
-        System.out.println("Turn relay "+ (aValue ? "on." : "off."));
-        iRelay.setValue(aValue);
+    public void setValue(boolean aValue){
+        System.out.println("Turn led "+ (aValue ? "on." : "off."));
+        gpio.setState(aValue);
     }
     
-    public boolean getValue() throws IOException{
-        return iRelay.getValue();
-    }
-    
-    public void close() throws IOException {
-        if (iRelay != null){
-            turnOff();
-            iRelay.close();
+    public void close(){
+        if (gpio != null){
+            gpio.shutdown();
         }
     }
     

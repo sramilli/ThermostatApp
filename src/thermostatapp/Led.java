@@ -33,35 +33,38 @@ public class Led {
     //private boolean iStopBlink = false;
     //private boolean iInitialStatus = false;
     
-    final GpioController gpio = GpioFactory.getInstance();
+    private GpioController gpio = GpioFactory.getInstance();
+    private GpioPinDigitalOutput iPin;
     
     public Led(int aPin){
         //GPIOPinConfig tConfig = new GPIOPinConfig(DeviceConfig.DEFAULT, aPin, GPIOPinConfig.DIR_OUTPUT_ONLY, GPIOPinConfig.MODE_OUTPUT_PUSH_PULL, GPIOPinConfig.TRIGGER_BOTH_EDGES, iInitialStatus);
         //iLED = (GPIOPin)DeviceManager.open(tConfig);
         //iLED.setValue(iInitialStatus);
-        final GpioPinDigitalOutput pin = gpio.provisionDigitalOutputPin(getPin(aPin), "PIN "+aPin, PinState.LOW);
-        pin.setShutdownOptions(true, PinState.LOW);
+        iPin = gpio.provisionDigitalOutputPin(Pi4jHelper.getPin(aPin), "PIN "+aPin, PinState.LOW);
+        iPin.setShutdownOptions(true, PinState.LOW);
+        System.out.println("Initialized Led on pin "+aPin+". Prop: "+iPin.getProperties());
     }
     
     public Led(int aPin, boolean aInitialStatusHigh){
         //GPIOPinConfig tConfig = new GPIOPinConfig(DeviceConfig.DEFAULT, aPin, GPIOPinConfig.DIR_OUTPUT_ONLY, GPIOPinConfig.MODE_OUTPUT_PUSH_PULL, GPIOPinConfig.TRIGGER_BOTH_EDGES, iInitialStatus);
         //iLED = (GPIOPin)DeviceManager.open(tConfig);
         //iLED.setValue(iInitialStatus);
-        final GpioPinDigitalOutput pin = gpio.provisionDigitalOutputPin(getPin(aPin), "PIN "+aPin, getInitialStatus(aInitialStatusHigh));
+        final GpioPinDigitalOutput pin = gpio.provisionDigitalOutputPin(Pi4jHelper.getPin(aPin), "PIN "+aPin, getInitialStatus(aInitialStatusHigh));
         pin.setShutdownOptions(true, getInitialStatus(aInitialStatusHigh));
+        System.out.println("Initialized Led on pin "+aPin+". Prop: "+pin.getProperties());
     }
     
     public void turnOn(){
-        gpio.high();
+        iPin.high();
     }
     
     public void turnOff(){
-        gpio.low();
+        iPin.low();
     }
     
     public void setValue(boolean aValue){
         System.out.println("Turn led "+ (aValue ? "on." : "off."));
-        gpio.setState(aValue);
+        iPin.setState(aValue);
     }
     
 //    public void getValue(){
@@ -98,78 +101,15 @@ public class Led {
     }*/
     
     public void close(){
-        if (gpio != null){
-            gpio.shutdown();
+        if (iPin != null){
+            iPin.removeAllListeners();
+            //NB!! Removes everything! Every pin!
+            if (gpio != null){
+                gpio.shutdown();  
+            }
         }
     }
     
-    private final Pin getPin(int p) {
-        switch (p) {
-            case 0:
-                return RaspiPin.GPIO_00;
-            case 1:
-                return RaspiPin.GPIO_01;
-            case 2:
-                return RaspiPin.GPIO_02;
-            case 3:
-                return RaspiPin.GPIO_03;
-            case 4:
-                return RaspiPin.GPIO_04;
-            case 5:
-                return RaspiPin.GPIO_05;
-            case 6:
-                return RaspiPin.GPIO_06;
-            case 7:
-                return RaspiPin.GPIO_07;
-            case 8:
-                return RaspiPin.GPIO_08;
-            case 9:
-                return RaspiPin.GPIO_09;
-            case 10:
-                return RaspiPin.GPIO_10;
-            case 11:
-                return RaspiPin.GPIO_11;
-            case 12:
-                return RaspiPin.GPIO_12;
-            case 13:
-                return RaspiPin.GPIO_13;
-            case 14:
-                return RaspiPin.GPIO_14;
-            case 15:
-                return RaspiPin.GPIO_15;
-            case 16:
-                return RaspiPin.GPIO_16;
-            case 17:
-                return RaspiPin.GPIO_17;
-            case 18:
-                return RaspiPin.GPIO_18;
-            case 19:
-                return RaspiPin.GPIO_19;
-            case 20:
-                return RaspiPin.GPIO_20;
-            case 21:
-                return RaspiPin.GPIO_21;
-            case 22:
-                return RaspiPin.GPIO_22;
-            case 23:
-                return RaspiPin.GPIO_23;
-            case 24:
-                return RaspiPin.GPIO_24;
-            case 25:
-                return RaspiPin.GPIO_25;
-            case 26:
-                return RaspiPin.GPIO_26;
-            case 27:
-                return RaspiPin.GPIO_27;
-            case 28:
-                return RaspiPin.GPIO_28;
-            case 29:
-                return RaspiPin.GPIO_29;
-            default:
-                return null;
-        }
-    }
-        
     private final PinState getInitialStatus(boolean aInitialStatusHigh) {
         if (aInitialStatusHigh) return PinState.HIGH;
         else return PinState.LOW;
